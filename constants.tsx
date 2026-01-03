@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 /**
@@ -8,7 +7,7 @@ import React from 'react';
 // 1. URL Apps Script Terbaru Anda
 export const API_URL = "https://script.google.com/macros/s/AKfycbw3hWiiEdYkLRVIRW2UQWyfcGvvgtSc_AyiEZCABOPSu8qhuBLrKDxMHUhCd3y8b9pHrA/exec";
 
-// 2. Logo Sekolah (TK Al Hikmah)
+// 2. Logo Sekolah (TK MBS)
 export const SCHOOL_LOGO = "https://iili.io/fhLGgpI.png";
 
 // 3. Alamat Sekolah

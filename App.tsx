@@ -30,6 +30,7 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [yearsState, setYearsState] = useState<number>(0);
   const [paymentInfo, setPaymentInfo] = useState<PaymentItem[]>([]);
+  const [errors, setErrors] = useState<{[key: string]: string}>({});
   
   const [formData, setFormData] = useState<FormData>({
     kodePendaftaran: '',
@@ -115,6 +116,54 @@ const App: React.FC = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const validateStep = (step: FormStep): boolean => {
+    const newErrors: {[key: string]: string} = {};
+    if (step === FormStep.SISWA) {
+      if (!formData.fotoSiswa) newErrors.fotoSiswa = 'Foto siswa wajib diupload';
+      if (!formData.namaLengkap.trim()) newErrors.namaLengkap = 'Nama lengkap wajib diisi';
+      if (!formData.jenisKelamin) newErrors.jenisKelamin = 'Jenis kelamin wajib dipilih';
+      if (!formData.nik || formData.nik.length !== 16) newErrors.nik = 'NIK wajib 16 digit';
+      if (!formData.tempatLahir.trim()) newErrors.tempatLahir = 'Tempat lahir wajib diisi';
+      if (!formData.tanggalLahir) newErrors.tanggalLahir = 'Tanggal lahir wajib diisi';
+      if (formData.isABK === 'Ya' && !formData.jenisABK?.trim()) newErrors.jenisABK = 'Jenis ABK wajib diisi jika ABK Ya';
+      if (formData.isPernahSekolahLain === 'Ya' && !formData.namaSekolahAsal?.trim()) newErrors.namaSekolahAsal = 'Nama sekolah asal wajib diisi jika pernah sekolah lain Ya';
+    } else if (step === FormStep.ORTU) {
+      if (!formData.namaAyah.trim()) newErrors.namaAyah = 'Nama ayah wajib diisi';
+      if (!formData.statusAyah) newErrors.statusAyah = 'Status ayah wajib dipilih';
+      if (!formData.waAyah.trim()) newErrors.waAyah = 'WhatsApp ayah wajib diisi';
+      if (!formData.tempatLahirAyah.trim()) newErrors.tempatLahirAyah = 'Tempat lahir ayah wajib diisi';
+      if (!formData.tanggalLahirAyah) newErrors.tanggalLahirAyah = 'Tanggal lahir ayah wajib diisi';
+      if (!formData.pekerjaanAyah) newErrors.pekerjaanAyah = 'Pekerjaan ayah wajib dipilih';
+      if (!formData.pendidikanAyah) newErrors.pendidikanAyah = 'Pendidikan ayah wajib dipilih';
+      if (!formData.penghasilanAyah) newErrors.penghasilanAyah = 'Penghasilan ayah wajib dipilih';
+      if (!formData.namaIbu.trim()) newErrors.namaIbu = 'Nama ibu wajib diisi';
+      if (!formData.statusIbu) newErrors.statusIbu = 'Status ibu wajib dipilih';
+      if (!formData.waIbu.trim()) newErrors.waIbu = 'WhatsApp ibu wajib diisi';
+      if (!formData.tempatLahirIbu.trim()) newErrors.tempatLahirIbu = 'Tempat lahir ibu wajib diisi';
+      if (!formData.tanggalLahirIbu) newErrors.tanggalLahirIbu = 'Tanggal lahir ibu wajib diisi';
+      if (!formData.pekerjaanIbu) newErrors.pekerjaanIbu = 'Pekerjaan ibu wajib dipilih';
+      if (!formData.pendidikanIbu) newErrors.pendidikanIbu = 'Pendidikan ibu wajib dipilih';
+      if (!formData.penghasilanIbu) newErrors.penghasilanIbu = 'Penghasilan ibu wajib dipilih';
+      if (formData.pilihanWali === 'Wali') {
+        if (!formData.namaWali.trim()) newErrors.namaWali = 'Nama wali wajib diisi';
+        if (!formData.hubunganWali.trim()) newErrors.hubunganWali = 'Hubungan wali wajib diisi';
+        if (!formData.waWali.trim()) newErrors.waWali = 'WhatsApp wali wajib diisi';
+        if (!formData.tempatLahirWali.trim()) newErrors.tempatLahirWali = 'Tempat lahir wali wajib diisi';
+        if (!formData.tanggalLahirWali) newErrors.tanggalLahirWali = 'Tanggal lahir wali wajib diisi';
+        if (!formData.pendidikanWali) newErrors.pendidikanWali = 'Pendidikan wali wajib dipilih';
+        if (!formData.pekerjaanWali) newErrors.pekerjaanWali = 'Pekerjaan wali wajib dipilih';
+        if (!formData.penghasilanWali) newErrors.penghasilanWali = 'Penghasilan wali wajib dipilih';
+      }
+    } else if (step === FormStep.WALI) {
+      if (!formData.noWhatsapp.trim()) newErrors.noWhatsapp = 'WhatsApp utama wajib diisi';
+      if (!formData.alamatRumahSiswa.trim()) newErrors.alamatRumahSiswa = 'Alamat rumah siswa wajib diisi';
+      if (!formData.ukuranSeragam) newErrors.ukuranSeragam = 'Ukuran seragam wajib dipilih';
+      if (!formData.metodePembayaran) newErrors.metodePembayaran = 'Metode pembayaran wajib dipilih';
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   useEffect(() => {
     if (formData.tanggalLahir) {
       const birthDate = new Date(formData.tanggalLahir);
@@ -161,6 +210,7 @@ const App: React.FC = () => {
 
   const handleSubmit = async () => {
     if (!isAgreed) return;
+    if (!validateStep(FormStep.WALI)) return;
     setIsSubmitting(true);
     setError(null);
     
@@ -184,7 +234,12 @@ const App: React.FC = () => {
     }
   };
 
-  const nextStep = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); setCurrentStep(prev => prev + 1); };
+  const nextStep = () => {
+    if (validateStep(currentStep)) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setCurrentStep(prev => prev + 1);
+    }
+  };
   const prevStep = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); setCurrentStep(prev => prev - 1); };
 
   const handleDownload = () => {
@@ -206,7 +261,7 @@ const App: React.FC = () => {
     if (formData.metodePembayaran === 'Transfer Bank') {
       message += '\n\nJangan lupa kirim screenshot bukti transfer.';
     }
-    window.open(`https://wa.me/6288807605276?text=${encodeURIComponent(message)}`, '_blank');
+    window.open(`https://wa.me/6281362370871?text=${encodeURIComponent(message)}`, '_blank');
   };
 
   if (currentStep === FormStep.SELESAI) {
@@ -372,18 +427,27 @@ const App: React.FC = () => {
                    </div>
                 </label>
                 <p className="text-[9px] text-slate-400 mt-4 font-bold tracking-widest uppercase">Pas Foto Resmi 3x4</p>
+                {errors.fotoSiswa && <p className="text-rose-500 text-[10px] font-bold ml-1">{errors.fotoSiswa}</p>}
              </div>
 
              <div className="bg-white rounded-[40px] p-8 shadow-xl border border-slate-100 space-y-6">
                 <h3 className="text-[12px] font-black text-slate-900 uppercase tracking-widest mb-2 flex items-center gap-2"><div className="w-2 h-2 bg-indigo-600 rounded-full" /> Identitas Dasar</h3>
-                <Input label="Nama Lengkap" placeholder="Sesuai Akta Kelahiran" value={formData.namaLengkap} onChange={e => updateField('namaLengkap', e.target.value)} />
+                <Input required label="Nama Lengkap" placeholder="Sesuai Akta Kelahiran" value={formData.namaLengkap} onChange={e => updateField('namaLengkap', e.target.value)} />
+                {errors.namaLengkap && <p className="text-rose-500 text-[10px] font-bold ml-1">{errors.namaLengkap}</p>}
                 <div className="grid grid-cols-2 gap-4">
                    <Input label="Nama Panggilan" value={formData.namaPanggilan} onChange={e => updateField('namaPanggilan', e.target.value)} />
-                   <Select label="Jenis Kelamin" value={formData.jenisKelamin} onChange={e => updateField('jenisKelamin', e.target.value)} options={[{label:'Laki-laki',value:'Laki-laki'},{label:'Perempuan',value:'Perempuan'}]} />
+                   <Select required label="Jenis Kelamin" value={formData.jenisKelamin} onChange={e => updateField('jenisKelamin', e.target.value)} options={[{label:'Laki-laki',value:'Laki-laki'},{label:'Perempuan',value:'Perempuan'}]} />
+                   {errors.jenisKelamin && <p className="text-rose-500 text-[10px] font-bold ml-1">{errors.jenisKelamin}</p>}
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                   <Input label="Tempat Lahir" value={formData.tempatLahir} onChange={e => updateField('tempatLahir', e.target.value)} />
-                   <Input label="Tgl Lahir" type="date" value={formData.tanggalLahir} onChange={e => updateField('tanggalLahir', e.target.value)} />
+                   <div>
+                      <Input required label="Tempat Lahir" value={formData.tempatLahir} onChange={e => updateField('tempatLahir', e.target.value)} />
+                      {errors.tempatLahir && <p className="text-rose-500 text-[10px] font-bold ml-1">{errors.tempatLahir}</p>}
+                   </div>
+                   <div>
+                      <Input required label="Tgl Lahir" type="date" value={formData.tanggalLahir} onChange={e => updateField('tanggalLahir', e.target.value)} />
+                      {errors.tanggalLahir && <p className="text-rose-500 text-[10px] font-bold ml-1">{errors.tanggalLahir}</p>}
+                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                    <Input label="Usia (Per Juni 2026)" value={formData.usia} readOnly className="bg-white font-bold" />
@@ -398,10 +462,11 @@ const App: React.FC = () => {
                 </div>
 
                 <div className="space-y-4">
-                  <Input label="NIK (16 Digit)" value={formData.nik} onChange={e => updateField('nik', e.target.value.replace(/\D/g, ''))} maxLength={16} />
+                  <Input required label="NIK (16 Digit)" value={formData.nik} onChange={e => updateField('nik', e.target.value.replace(/\D/g, ''))} maxLength={16} />
                   <p className="text-[10px] text-rose-600 mt-[-10px] ml-1 font-black italic">
                     Jumlah angka diinput: {formData.nik.length} / 16
                   </p>
+                  {errors.nik && <p className="text-rose-500 text-[10px] font-bold ml-1">{errors.nik}</p>}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -435,13 +500,14 @@ const App: React.FC = () => {
                       
                       {formData.isABK === 'Ya' && (
                           <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-                            <Input 
-                                label="Jenis ABK" 
-                                value={formData.jenisABK === '-' ? '' : formData.jenisABK} 
-                                onChange={e => updateField('jenisABK', e.target.value)} 
-                                placeholder="Contoh: Autisme, ADHD, Tunawicara, dll" 
-                            />
-                          </div>
+                          <Input required
+                              label="Jenis ABK"
+                              value={formData.jenisABK === '-' ? '' : formData.jenisABK}
+                              onChange={e => updateField('jenisABK', e.target.value)}
+                              placeholder="Contoh: Autisme, ADHD, Tunawicara, dll"
+                          />
+                          {errors.jenisABK && <p className="text-rose-500 text-[10px] font-bold ml-1">{errors.jenisABK}</p>}
+                        </div>
                       )}
                    </div>
 
@@ -455,13 +521,14 @@ const App: React.FC = () => {
                       
                       {formData.isPernahSekolahLain === 'Ya' && (
                           <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-                            <Input 
-                                label="Nama Sekolah Asal" 
-                                value={formData.namaSekolahAsal === '-' ? '' : formData.namaSekolahAsal} 
-                                onChange={e => updateField('namaSekolahAsal', e.target.value)} 
-                                placeholder="Masukkan nama sekolah sebelumnya" 
-                            />
-                          </div>
+                          <Input required
+                              label="Nama Sekolah Asal"
+                              value={formData.namaSekolahAsal === '-' ? '' : formData.namaSekolahAsal}
+                              onChange={e => updateField('namaSekolahAsal', e.target.value)}
+                              placeholder="Masukkan nama sekolah sebelumnya"
+                          />
+                          {errors.namaSekolahAsal && <p className="text-rose-500 text-[10px] font-bold ml-1">{errors.namaSekolahAsal}</p>}
+                        </div>
                       )}
                    </div>
                 </div>
@@ -475,37 +542,69 @@ const App: React.FC = () => {
           <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-right-4">
              <div className="bg-white rounded-[40px] p-8 shadow-xl border border-slate-100 space-y-6">
                 <h3 className="text-[12px] font-black text-slate-900 uppercase tracking-widest flex items-center gap-2"><div className="w-2 h-2 bg-blue-500 rounded-full" /> Data Ayah</h3>
-                <Input label="Nama Lengkap Ayah" value={formData.namaAyah} onChange={e => updateField('namaAyah', e.target.value)} />
+                <Input required label="Nama Lengkap Ayah" value={formData.namaAyah} onChange={e => updateField('namaAyah', e.target.value)} />
+                {errors.namaAyah && <p className="text-rose-500 text-[10px] font-bold ml-1">{errors.namaAyah}</p>}
                 <div className="grid grid-cols-2 gap-4">
-                   <Select label="Status Ayah" value={formData.statusAyah} onChange={e => updateField('statusAyah', e.target.value)} options={[{label:'Hidup',value:'Hidup'},{label:'Meninggal',value:'Meninggal'}]} />
-                   <Input label="WhatsApp Ayah" value={formData.waAyah} onChange={e => updateField('waAyah', e.target.value)} placeholder="08..." />
+                   <Select required label="Status Ayah" value={formData.statusAyah} onChange={e => updateField('statusAyah', e.target.value)} options={[{label:'Hidup',value:'Hidup'},{label:'Meninggal',value:'Meninggal'}]} />
+                   {errors.statusAyah && <p className="text-rose-500 text-[10px] font-bold ml-1">{errors.statusAyah}</p>}
+                   <Input required label="WhatsApp Ayah" value={formData.waAyah} onChange={e => updateField('waAyah', e.target.value)} placeholder="08..." />
+                   {errors.waAyah && <p className="text-rose-500 text-[10px] font-bold ml-1">{errors.waAyah}</p>}
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                   <Input label="Tempat Lahir" value={formData.tempatLahirAyah} onChange={e => updateField('tempatLahirAyah', e.target.value)} />
-                   <Input label="Tgl Lahir" type="date" value={formData.tanggalLahirAyah} onChange={e => updateField('tanggalLahirAyah', e.target.value)} />
+                   <div>
+                      <Input required label="Tempat Lahir" value={formData.tempatLahirAyah} onChange={e => updateField('tempatLahirAyah', e.target.value)} />
+                      {errors.tempatLahirAyah && <p className="text-rose-500 text-[10px] font-bold ml-1">{errors.tempatLahirAyah}</p>}
+                   </div>
+                   <div>
+                      <Input required label="Tgl Lahir" type="date" value={formData.tanggalLahirAyah} onChange={e => updateField('tanggalLahirAyah', e.target.value)} />
+                      {errors.tanggalLahirAyah && <p className="text-rose-500 text-[10px] font-bold ml-1">{errors.tanggalLahirAyah}</p>}
+                   </div>
                 </div>
-                <Select label="Pekerjaan" value={formData.pekerjaanAyah} onChange={e => updateField('pekerjaanAyah', e.target.value)} options={PEKERJAAN_AYAH_OPTIONS} />
+                <Select required label="Pekerjaan" value={formData.pekerjaanAyah} onChange={e => updateField('pekerjaanAyah', e.target.value)} options={PEKERJAAN_AYAH_OPTIONS} />
+                {errors.pekerjaanAyah && <p className="text-rose-500 text-[10px] font-bold ml-1">{errors.pekerjaanAyah}</p>}
                 <div className="grid grid-cols-2 gap-4">
-                   <Select label="Pendidikan" value={formData.pendidikanAyah} onChange={e => updateField('pendidikanAyah', e.target.value)} options={PENDIDIKAN_OPTIONS} />
-                   <Select label="Penghasilan" value={formData.penghasilanAyah} onChange={e => updateField('penghasilanAyah', e.target.value)} options={PENGHASILAN_OPTIONS} />
+                   <div>
+                      <Select required label="Pendidikan" value={formData.pendidikanAyah} onChange={e => updateField('pendidikanAyah', e.target.value)} options={PENDIDIKAN_OPTIONS} />
+                      {errors.pendidikanAyah && <p className="text-rose-500 text-[10px] font-bold ml-1">{errors.pendidikanAyah}</p>}
+                   </div>
+                   <div>
+                      <Select required label="Penghasilan" value={formData.penghasilanAyah} onChange={e => updateField('penghasilanAyah', e.target.value)} options={PENGHASILAN_OPTIONS} />
+                      {errors.penghasilanAyah && <p className="text-rose-500 text-[10px] font-bold ml-1">{errors.penghasilanAyah}</p>}
+                   </div>
                 </div>
              </div>
 
              <div className="bg-white rounded-[40px] p-8 shadow-xl border border-slate-100 space-y-6">
                 <h3 className="text-[12px] font-black text-slate-900 uppercase tracking-widest flex items-center gap-2"><div className="w-2 h-2 bg-rose-500 rounded-full" /> Data Ibu</h3>
-                <Input label="Nama Lengkap Ibu" value={formData.namaIbu} onChange={e => updateField('namaIbu', e.target.value)} />
+                <Input required label="Nama Lengkap Ibu" value={formData.namaIbu} onChange={e => updateField('namaIbu', e.target.value)} />
+                {errors.namaIbu && <p className="text-rose-500 text-[10px] font-bold ml-1">{errors.namaIbu}</p>}
                 <div className="grid grid-cols-2 gap-4">
-                   <Select label="Status Ibu" value={formData.statusIbu} onChange={e => updateField('statusIbu', e.target.value)} options={[{label:'Hidup',value:'Hidup'},{label:'Meninggal',value:'Meninggal'}]} />
-                   <Input label="WhatsApp Ibu" value={formData.waIbu} onChange={e => updateField('waIbu', e.target.value)} placeholder="08..." />
+                   <Select required label="Status Ibu" value={formData.statusIbu} onChange={e => updateField('statusIbu', e.target.value)} options={[{label:'Hidup',value:'Hidup'},{label:'Meninggal',value:'Meninggal'}]} />
+                   {errors.statusIbu && <p className="text-rose-500 text-[10px] font-bold ml-1">{errors.statusIbu}</p>}
+                   <Input required label="WhatsApp Ibu" value={formData.waIbu} onChange={e => updateField('waIbu', e.target.value)} placeholder="08..." />
+                   {errors.waIbu && <p className="text-rose-500 text-[10px] font-bold ml-1">{errors.waIbu}</p>}
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                   <Input label="Tempat Lahir" value={formData.tempatLahirIbu} onChange={e => updateField('tempatLahirIbu', e.target.value)} />
-                   <Input label="Tgl Lahir" type="date" value={formData.tanggalLahirIbu} onChange={e => updateField('tanggalLahirIbu', e.target.value)} />
+                   <div>
+                      <Input required label="Tempat Lahir" value={formData.tempatLahirIbu} onChange={e => updateField('tempatLahirIbu', e.target.value)} />
+                      {errors.tempatLahirIbu && <p className="text-rose-500 text-[10px] font-bold ml-1">{errors.tempatLahirIbu}</p>}
+                   </div>
+                   <div>
+                      <Input required label="Tgl Lahir" type="date" value={formData.tanggalLahirIbu} onChange={e => updateField('tanggalLahirIbu', e.target.value)} />
+                      {errors.tanggalLahirIbu && <p className="text-rose-500 text-[10px] font-bold ml-1">{errors.tanggalLahirIbu}</p>}
+                   </div>
                 </div>
-                <Select label="Pekerjaan" value={formData.pekerjaanIbu} onChange={e => updateField('pekerjaanIbu', e.target.value)} options={PEKERJAAN_IBU_OPTIONS} />
+                <Select required label="Pekerjaan" value={formData.pekerjaanIbu} onChange={e => updateField('pekerjaanIbu', e.target.value)} options={PEKERJAAN_IBU_OPTIONS} />
+                {errors.pekerjaanIbu && <p className="text-rose-500 text-[10px] font-bold ml-1">{errors.pekerjaanIbu}</p>}
                 <div className="grid grid-cols-2 gap-4">
-                   <Select label="Pendidikan" value={formData.pendidikanIbu} onChange={e => updateField('pendidikanIbu', e.target.value)} options={PENDIDIKAN_OPTIONS} />
-                   <Select label="Penghasilan" value={formData.penghasilanIbu} onChange={e => updateField('penghasilanIbu', e.target.value)} options={PENGHASILAN_OPTIONS} />
+                   <div>
+                      <Select required label="Pendidikan" value={formData.pendidikanIbu} onChange={e => updateField('pendidikanIbu', e.target.value)} options={PENDIDIKAN_OPTIONS} />
+                      {errors.pendidikanIbu && <p className="text-rose-500 text-[10px] font-bold ml-1">{errors.pendidikanIbu}</p>}
+                   </div>
+                   <div>
+                      <Select required label="Penghasilan" value={formData.penghasilanIbu} onChange={e => updateField('penghasilanIbu', e.target.value)} options={PENGHASILAN_OPTIONS} />
+                      {errors.penghasilanIbu && <p className="text-rose-500 text-[10px] font-bold ml-1">{errors.penghasilanIbu}</p>}
+                   </div>
                 </div>
 
                 <div className="pt-6 border-t border-slate-50 space-y-6">
@@ -528,19 +627,39 @@ const App: React.FC = () => {
                          <h3 className="text-[12px] font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
                             <div className="w-2 h-2 bg-amber-500 rounded-full" /> Data Wali
                          </h3>
-                         <Input label="Nama Lengkap Wali" value={formData.namaWali} onChange={e => updateField('namaWali', e.target.value)} />
+                         <Input required label="Nama Lengkap Wali" value={formData.namaWali} onChange={e => updateField('namaWali', e.target.value)} />
+                         {errors.namaWali && <p className="text-rose-500 text-[10px] font-bold ml-1">{errors.namaWali}</p>}
                          <div className="grid grid-cols-2 gap-4">
-                            <Input label="Hubungan Keluarga" placeholder="Contoh: Kakek, Paman, dll" value={formData.hubunganWali} onChange={e => updateField('hubunganWali', e.target.value)} />
-                            <Input label="WhatsApp Wali" value={formData.waWali} onChange={e => updateField('waWali', e.target.value)} placeholder="08..." />
+                            <div>
+                               <Input required label="Hubungan Keluarga" placeholder="Contoh: Kakek, Paman, dll" value={formData.hubunganWali} onChange={e => updateField('hubunganWali', e.target.value)} />
+                               {errors.hubunganWali && <p className="text-rose-500 text-[10px] font-bold ml-1">{errors.hubunganWali}</p>}
+                            </div>
+                            <div>
+                               <Input required label="WhatsApp Wali" value={formData.waWali} onChange={e => updateField('waWali', e.target.value)} placeholder="08..." />
+                               {errors.waWali && <p className="text-rose-500 text-[10px] font-bold ml-1">{errors.waWali}</p>}
+                            </div>
                          </div>
                          <div className="grid grid-cols-2 gap-4">
-                            <Input label="Tempat Lahir Wali" value={formData.tempatLahirWali} onChange={e => updateField('tempatLahirWali', e.target.value)} />
-                            <Input label="Tgl Lahir Wali" type="date" value={formData.tanggalLahirWali} onChange={e => updateField('tanggalLahirWali', e.target.value)} />
+                            <div>
+                               <Input required label="Tempat Lahir Wali" value={formData.tempatLahirWali} onChange={e => updateField('tempatLahirWali', e.target.value)} />
+                               {errors.tempatLahirWali && <p className="text-rose-500 text-[10px] font-bold ml-1">{errors.tempatLahirWali}</p>}
+                            </div>
+                            <div>
+                               <Input required label="Tgl Lahir Wali" type="date" value={formData.tanggalLahirWali} onChange={e => updateField('tanggalLahirWali', e.target.value)} />
+                               {errors.tanggalLahirWali && <p className="text-rose-500 text-[10px] font-bold ml-1">{errors.tanggalLahirWali}</p>}
+                            </div>
                          </div>
-                         <Select label="Pendidikan Terakhir" value={formData.pendidikanWali} onChange={e => updateField('pendidikanWali', e.target.value)} options={PENDIDIKAN_OPTIONS} />
+                         <Select required label="Pendidikan Terakhir" value={formData.pendidikanWali} onChange={e => updateField('pendidikanWali', e.target.value)} options={PENDIDIKAN_OPTIONS} />
+                         {errors.pendidikanWali && <p className="text-rose-500 text-[10px] font-bold ml-1">{errors.pendidikanWali}</p>}
                          <div className="grid grid-cols-2 gap-4">
-                            <Select label="Pekerjaan" value={formData.pekerjaanWali} onChange={e => updateField('pekerjaanWali', e.target.value)} options={PEKERJAAN_AYAH_OPTIONS} />
-                            <Select label="Penghasilan" value={formData.penghasilanWali} onChange={e => updateField('penghasilanWali', e.target.value)} options={PENGHASILAN_OPTIONS} />
+                            <div>
+                               <Select required label="Pekerjaan" value={formData.pekerjaanWali} onChange={e => updateField('pekerjaanWali', e.target.value)} options={PEKERJAAN_AYAH_OPTIONS} />
+                               {errors.pekerjaanWali && <p className="text-rose-500 text-[10px] font-bold ml-1">{errors.pekerjaanWali}</p>}
+                            </div>
+                            <div>
+                               <Select required label="Penghasilan" value={formData.penghasilanWali} onChange={e => updateField('penghasilanWali', e.target.value)} options={PENGHASILAN_OPTIONS} />
+                               {errors.penghasilanWali && <p className="text-rose-500 text-[10px] font-bold ml-1">{errors.penghasilanWali}</p>}
+                            </div>
                          </div>
                       </div>
                    )}
@@ -558,10 +677,12 @@ const App: React.FC = () => {
           <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-right-4">
              <div className="bg-white rounded-[40px] p-8 shadow-xl border border-slate-100 space-y-6">
                 <h3 className="text-[12px] font-black text-slate-900 uppercase tracking-widest flex items-center gap-2"><div className="w-2 h-2 bg-indigo-600 rounded-full" /> Kontak & Domisili</h3>
-                <Input label="WhatsApp Utama (Untuk Notifikasi)" placeholder="08xxx" value={formData.noWhatsapp} onChange={e => updateField('noWhatsapp', e.target.value)} />
+                <Input required label="WhatsApp Utama (Untuk Notifikasi)" placeholder="08xxx" value={formData.noWhatsapp} onChange={e => updateField('noWhatsapp', e.target.value)} />
+                {errors.noWhatsapp && <p className="text-rose-500 text-[10px] font-bold ml-1">{errors.noWhatsapp}</p>}
                 <div className="space-y-1.5">
                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Alamat Lengkap Domisili Siswa</label>
-                   <textarea className="w-full bg-white border border-slate-100 rounded-2xl p-4 text-sm focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none" rows={3} value={formData.alamatRumahSiswa} onChange={e => updateField('alamatRumahSiswa', e.target.value)} />
+                   <textarea required className="w-full bg-white border border-slate-100 rounded-2xl p-4 text-sm focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none" rows={3} value={formData.alamatRumahSiswa} onChange={e => updateField('alamatRumahSiswa', e.target.value)} />
+                   {errors.alamatRumahSiswa && <p className="text-rose-500 text-[10px] font-bold ml-1">{errors.alamatRumahSiswa}</p>}
                 </div>
 
                 <div className="pt-4 border-t border-slate-50">
@@ -602,8 +723,14 @@ const App: React.FC = () => {
                    </div>
 
                    <div className="grid grid-cols-2 gap-4">
-                      <Select label="Ukuran Seragam" value={formData.ukuranSeragam} onChange={e => updateField('ukuranSeragam', e.target.value)} options={SERAGAM_OPTIONS} />
-                      <Select label="Metode Bayar" value={formData.metodePembayaran} onChange={e => updateField('metodePembayaran', e.target.value)} options={METODE_BAYAR_OPTIONS} />
+                      <div>
+                         <Select required label="Ukuran Seragam" value={formData.ukuranSeragam} onChange={e => updateField('ukuranSeragam', e.target.value)} options={SERAGAM_OPTIONS} />
+                         {errors.ukuranSeragam && <p className="text-rose-500 text-[10px] font-bold ml-1">{errors.ukuranSeragam}</p>}
+                      </div>
+                      <div>
+                         <Select required label="Metode Bayar" value={formData.metodePembayaran} onChange={e => updateField('metodePembayaran', e.target.value)} options={METODE_BAYAR_OPTIONS} />
+                         {errors.metodePembayaran && <p className="text-rose-500 text-[10px] font-bold ml-1">{errors.metodePembayaran}</p>}
+                      </div>
                    </div>
 
                    {formData.metodePembayaran && (
