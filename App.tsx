@@ -202,7 +202,10 @@ const App: React.FC = () => {
   };
 
   const handleWhatsAppConfirm = () => {
-    const message = `Assalamualaikum Admin TK Manhaj Brand School, saya konfirmasi pendaftaran PPDB Online.\n\nNama: ${formData.namaLengkap}\nID: ${formData.kodePendaftaran}\nKelompok: ${formData.kelompok}`;
+    let message = `Assalamualaikum Admin TK Manhaj Brand School, saya konfirmasi pendaftaran PPDB Online.\n\nNama: ${formData.namaLengkap}\nID: ${formData.kodePendaftaran}\nKelompok: ${formData.kelompok}`;
+    if (formData.metodePembayaran === 'Transfer Bank') {
+      message += '\n\nJangan lupa kirim screenshot bukti transfer.';
+    }
     window.open(`https://wa.me/6288807605276?text=${encodeURIComponent(message)}`, '_blank');
   };
 
@@ -627,7 +630,7 @@ const App: React.FC = () => {
 
              <div className={`p-6 rounded-[32px] border transition-all flex items-center gap-5 cursor-pointer ${isAgreed ? 'bg-indigo-50 border-indigo-200' : 'bg-slate-50 border-slate-100'}`} onClick={() => setIsAgreed(!isAgreed)}>
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all ${isAgreed ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-white border-slate-200 text-transparent'}`}>✓</div>
-                <p className="text-[11px] font-bold text-slate-600 leading-tight">Saya menyatakan data di atas benar & siap mengikuti prosedur pendaftaran di TK Al Hikmah.</p>
+                <p className="text-[11px] font-bold text-slate-600 leading-tight">Saya menyatakan data di atas benar & siap mengikuti prosedur pendaftaran di TK Manhaj Brand School.</p>
              </div>
 
              {error && <div className="bg-rose-50 text-rose-600 p-5 rounded-3xl text-[11px] font-bold border border-rose-100">{error}</div>}
