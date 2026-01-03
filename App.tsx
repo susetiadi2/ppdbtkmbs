@@ -203,7 +203,7 @@ const App: React.FC = () => {
 
   const handleWhatsAppConfirm = () => {
     const message = `Assalamualaikum Admin TK Manhaj Brand School, saya konfirmasi pendaftaran PPDB Online.\n\nNama: ${formData.namaLengkap}\nID: ${formData.kodePendaftaran}\nKelompok: ${formData.kelompok}`;
-    window.open(`https://wa.me/6281370014330?text=${encodeURIComponent(message)}`, '_blank');
+    window.open(`https://wa.me/6288807605276?text=${encodeURIComponent(message)}`, '_blank');
   };
 
   if (currentStep === FormStep.SELESAI) {
@@ -224,7 +224,7 @@ const App: React.FC = () => {
                 <div className="w-20 h-20 mx-auto mb-4 bg-white p-2 rounded-2xl shadow-md border border-slate-100 flex items-center justify-center">
                    <img src={SCHOOL_LOGO} alt="Logo" className="w-full h-full object-contain" />
                 </div>
-                <h1 className="text-2xl font-black text-slate-900">TK AL HIKMAH</h1>
+                <h1 className="text-2xl font-black text-slate-900">TK MANHAJ BRAND SCHOOL</h1>
                 <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">{SCHOOL_ADDRESS}</p>
              </div>
              
@@ -276,16 +276,16 @@ const App: React.FC = () => {
                 <p className="text-[11px] font-bold text-slate-800 pr-4 mt-1">Panitia PPDB,</p>
                 
                 <div className="relative w-40">
-                   <img 
-                      src="https://down-id.img.susercontent.com/file/sg-11134201-7rd3t-lwgurx61vx1y34" 
-                      alt="Stempel" 
+                   <img
+                      src="https://iili.io/fjlJHPe.jpg"
+                      alt="Stempel"
                       className="absolute -top-10 -left-6 w-28 h-28 object-contain opacity-80 mix-blend-multiply pointer-events-none z-0"
                    />
                    
                    <div className="h-16 flex items-end justify-center w-full pb-1 relative z-10">
-                      <p className="text-[11px] font-black text-slate-900 underline">Ratna Dewi</p>
+                      <p className="text-[11px] font-black text-slate-900 underline">Ratna Dewi,S.Pd</p>
                    </div>
-                   <p className="text-[11px] font-black uppercase text-slate-900 border-t border-slate-900 pt-1 w-full text-center relative z-10">Kepala TK Al Hikmah</p>
+                   <p className="text-[11px] font-black uppercase text-slate-900 border-t border-slate-900 pt-1 w-full text-center relative z-10">Kepala TK Manhaj Brand School</p>
                 </div>
              </div>
           </div>
@@ -587,6 +587,17 @@ const App: React.FC = () => {
                       </table>
                    </div>
 
+                   <div className="p-4 rounded-2xl border flex gap-3 items-start transition-all bg-emerald-50 border-emerald-100 mb-6">
+                      <Icons.Info className="w-4 h-4 mt-0.5 shrink-0 text-emerald-500" />
+                      <div>
+                         <p className="text-[11px] font-black text-emerald-400 uppercase tracking-widest mb-1">Informasi Seragam</p>
+                         <p className="text-[12px] font-black text-emerald-900 mb-2">Banyak seragam 3 pasang</p>
+                         <p className="text-[11px] font-bold text-emerald-700/80 leading-relaxed uppercase tracking-wider">
+                            Baju Olahraga, Seragam Putih, dan Seragam Rompi.
+                         </p>
+                      </div>
+                   </div>
+
                    <div className="grid grid-cols-2 gap-4">
                       <Select label="Ukuran Seragam" value={formData.ukuranSeragam} onChange={e => updateField('ukuranSeragam', e.target.value)} options={SERAGAM_OPTIONS} />
                       <Select label="Metode Bayar" value={formData.metodePembayaran} onChange={e => updateField('metodePembayaran', e.target.value)} options={METODE_BAYAR_OPTIONS} />
@@ -603,8 +614,8 @@ const App: React.FC = () => {
                                <p className="text-[12px] font-black text-indigo-900 mb-2">{formData.metodePembayaran}</p>
                                <p className="text-[11px] font-bold text-indigo-700/80 leading-relaxed uppercase tracking-wider">
                                   {formData.metodePembayaran === 'Transfer Bank' 
-                                    ? "Silakan lakukan transfer ke Bank Syariah Indonesia (BSI) No. Rekening: 7111002221 a.n TK Al Hikmah. Mohon simpan bukti transfer untuk dikirimkan melalui WhatsApp Konfirmasi."
-                                    : "Pembayaran dapat dilakukan secara tunai di kantor administrasi sekolah setiap hari kerja (Senin-Jumat) pukul 08.00 - 14.00 WIB."
+                                    ? "Silakan lakukan transfer ke Bank Sumut,No. Rekening: 10602040269273 a.n Ratna Dewi. Mohon simpan bukti transfer untuk dikirimkan melalui WhatsApp Konfirmasi."
+                                    : "Pembayaran dapat dilakukan secara tunai di kantor TK MBS, setiap hari kerja (Senin-Jumat) pukul 08.00 - 16.00 WIB."
                                   }
                                </p>
                             </div>

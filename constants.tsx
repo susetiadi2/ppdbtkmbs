@@ -12,7 +12,7 @@ export const API_URL = "https://script.google.com/macros/s/AKfycbw3hWiiEdYkLRVIR
 export const SCHOOL_LOGO = "https://iili.io/fhLGgpI.png";
 
 // 3. Alamat Sekolah
-export const SCHOOL_ADDRESS = "Jln. Mesjid I Dsn 1. Desa Sekip. Kec Lubuk Pakam";
+export const SCHOOL_ADDRESS = "Jln. Mesjid I No. 57 Desa Sekip. Kec Lubuk Pakam (WA: 081362370871 atau WA: 088807605276)";
 
 // 4. Kota Sekolah
 export const SCHOOL_CITY = "Lubuk Pakam";
